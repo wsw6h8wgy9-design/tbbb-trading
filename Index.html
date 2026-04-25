@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TBBB Trading Group — Watch the Market in Real Time</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a;
+  --bg-elev:#111111;
+  --bg-card:#161616;
+  --line:#222222;
+  --line-soft:#1a1a1a;
+  --text:#f5f5f0;
+  --text-dim:#8a8a85;
+  --text-mute:#5a5a55;
+  --accent:#c9a65c;        /* muted gold */
+  --accent-bright:#e6c074;
+  --green:#4ade80;
+  --red:#f87171;
+  --display:'Fraunces', serif;
+  --body:'Inter Tight', system-ui, sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--body);
+  font-weight:400;
+  line-height:1.5;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* Grain overlay */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.container{max-width:1280px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  padding:20px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(10,10,10,0.7);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--line-soft);
+}
+.logo{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:22px;
+  letter-spacing:-0.02em;
+}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:36px;font-size:14px;color:var(--text-dim)}
+.nav-links a{color:inherit;text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{
+  background:var(--accent);
+  color:#000;
+  padding:10px 20px;
+  font-size:13px;
+  font-weight:600;
+  border-radius:2px;
+  text-decoration:none;
+  letter-spacing:0.02em;
+  text-transform:uppercase;
+  transition:background .2s;
+}
+.nav-cta:hover{background:var(--accent-bright)}
+
+/* HERO */
+.hero{
+  min-height:100vh;
+  padding:160px 0 80px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 70% 30%, rgba(201,166,92,.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(201,166,92,.04) 0%, transparent 60%);
+  pointer-events:none;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size:80px 80px;
+  mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
+  opacity:.5;
+}
+
+.hero-inner{position:relative;z-index:3;width:100%}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--accent);
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  margin-bottom:32px;
+  padding:8px 14px;
+  border:1px solid var(--line);
+  border-radius:2px;
+  background:var(--bg-elev);
+}
+.live-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 12px var(--green);
+  animation:pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.5;transform:scale(.8)}
+}
+h1{
+  font-family:var(--display);
+  font-weight:300;
+  font-size:clamp(48px, 8vw, 104px);
+  line-height:0.95;
+  letter-spacing:-0.04em;
+  margin-bottom:36px;
+  max-width:1100px;
+}
+h1 em{
+  font-style:italic;
+  color:var(--accent);
+  font-weight:400;
+}
+.hero-sub{
+  font-size:20px;
+  color:var(--text-dim);
+  max-width:580px;
+  margin-bottom:48px;
+  line-height:1.5;
+}
+.hero-ctas{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.btn-primary{
+  background:var(--accent);
+  color:#000;
+  padding:18px 32px;
+  font-size:14px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  text-decoration:none;
+  border-radius:2px;
+  transition:all .2s;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.btn-primary:hover{background:var(--accent-bright);transform:translateY(-1px)}
+.btn-secondary{
+  background:transparent;
+  color:var(--text);
+  padding:18px 32px;
+  font-size:14px;
+  font-weight:500;
+  text-decoration:none;
+  border:1px solid var(--line);
+  border-radius:2px;
+  transition:all .2s;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+
+.hero-meta{
+  margin-top:80px;
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:1px;
+  background:var(--line-soft);
+  border:1px solid var(--line-soft);
+}
+.meta-cell{
+  background:var(--bg);
+  padding:24px;
+}
+.meta-label{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--text-mute);
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.meta-value{
+  font-family:var(--display);
+  font-size:28px;
+  font-weight:400;
+  letter-spacing:-0.02em;
+}
+
+/* SECTION TEMPLATE */
+section{padding:120px 0;position:relative}
+.section-label{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--accent);
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+}
+h2{
+  font-family:var(--display);
+  font-weight:300;
+  font-size:clamp(36px, 5vw, 64px);
+  line-height:1.05;
+  letter-spacing:-0.03em;
+  margin-bottom:32px;
+  max-width:900px;
+}
+h2 em{font-style:italic;color:var(--accent);font-weight:400}
+.section-sub{
+  font-size:18px;
+  color:var(--text-dim);
+  max-width:640px;
+  margin-bottom:64px;
+  line-height:1.6;
+}
+
+/* STORY */
+.story{border-top:1px solid var(--line-soft)}
+.story-grid{
+  display:grid;
+  grid-template-columns:1fr 1.4fr;
+  gap:80px;
+  align-items:start;
+}
+.story-marker{
+  font-family:var(--mono);
+  color:var(--text-mute);
+  font-size:13px;
+}
+.story-marker .num{
+  font-family:var(--display);
+  font-size:80px;
+  font-weight:300;
+  color:var(--accent);
+  display:block;
+  line-height:1;
+  margin-bottom:16px;
+  font-style:italic;
+}
+.story-body{
+  font-family:var(--display);
+  font-size:24px;
+  font-weight:300;
+  line-height:1.5;
+  letter-spacing:-0.01em;
+  color:var(--text);
+}
+.story-body p{margin-bottom:24px}
+.story-body p:last-child{color:var(--text-dim);font-size:18px;font-family:var(--body)}
+.pullquote{
+  border-left:2px solid var(--accent);
+  padding-left:24px;
+  margin:32px 0;
+  font-style:italic;
+  color:var(--accent);
+}
+
+/* WHAT YOU GET */
+.offering{background:var(--bg-elev);border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+.offering-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:0;
+  border:1px solid var(--line);
+  background:var(--line);
+}
+.offering-card{
+  background:var(--bg-elev);
+  padding:48px 36px;
+  position:relative;
+  transition:background .3s;
+}
+.offering-card:hover{background:var(--bg-card)}
+.offering-num{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--accent);
+  letter-spacing:0.2em;
+  margin-bottom:24px;
+}
+.offering-icon{
+  width:48px;height:48px;
+  border:1px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:32px;
+  color:var(--accent);
+}
+.offering-title{
+  font-family:var(--display);
+  font-size:26px;
+  font-weight:400;
+  margin-bottom:16px;
+  letter-spacing:-0.02em;
+}
+.offering-desc{
+  color:var(--text-dim);
+  font-size:15px;
+  line-height:1.6;
+}
+
+/* TICKER */
+.ticker-strip{
+  background:#000;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:18px 0;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.ticker-track{
+  display:inline-block;
+  animation:scroll 40s linear infinite;
+  font-family:var(--mono);
+  font-size:14px;
+}
+.ticker-item{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  margin-right:48px;
+  color:var(--text-dim);
+}
+.ticker-item .sym{color:var(--text);font-weight:500}
+.ticker-item .up{color:var(--green)}
+.ticker-item .down{color:var(--red)}
+@keyframes scroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+
+/* TESTIMONIALS (hidden by default — see HTML comments) */
+.testimonials{border-top:1px solid var(--line-soft)}
+.testimonial-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:24px;
+}
+.testimonial-card{
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  padding:36px 32px;
+  position:relative;
+  transition:border-color .3s;
+}
+.testimonial-card:hover{border-color:var(--accent)}
+.testimonial-card::before{
+  content:"\201C";
+  position:absolute;
+  top:12px;left:24px;
+  font-family:var(--display);
+  font-size:64px;
+  color:var(--accent);
+  opacity:.3;
+  line-height:1;
+}
+.testimonial-quote{
+  font-family:var(--display);
+  font-size:18px;
+  font-weight:400;
+  line-height:1.5;
+  letter-spacing:-0.01em;
+  color:var(--text);
+  margin:24px 0 28px;
+  position:relative;
+  z-index:2;
+}
+.testimonial-meta{padding-top:20px;border-top:1px solid var(--line)}
+.testimonial-name{
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--text);
+  letter-spacing:0.05em;
+  margin-bottom:4px;
+}
+.testimonial-since{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--text-mute);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+}
+@media (max-width: 880px){
+  .testimonial-grid{grid-template-columns:1fr}
+}
+
+/* PRICING */
+.pricing{padding:140px 0}
+.pricing-header{text-align:center;margin-bottom:80px}
+.pricing-header h2{margin-left:auto;margin-right:auto}
+.pricing-header .section-sub{margin-left:auto;margin-right:auto}
+.pricing-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+  max-width:920px;
+  margin:0 auto;
+}
+.price-card{
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  padding:48px 40px;
+  position:relative;
+  transition:border-color .3s;
+}
+.price-card:hover{border-color:var(--accent)}
+.price-card.featured{
+  background:linear-gradient(180deg, rgba(201,166,92,.06) 0%, var(--bg-elev) 60%);
+  border-color:var(--accent);
+}
+.price-badge{
+  position:absolute;
+  top:-12px;left:40px;
+  background:var(--accent);
+  color:#000;
+  font-family:var(--mono);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.15em;
+  padding:6px 12px;
+}
+.price-name{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--text-dim);
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+}
+.price-amount{
+  font-family:var(--display);
+  font-size:72px;
+  font-weight:300;
+  line-height:1;
+  letter-spacing:-0.04em;
+  margin-bottom:8px;
+}
+.price-amount sup{font-size:28px;color:var(--text-dim);font-weight:400;vertical-align:top;margin-right:4px}
+.price-amount span{font-size:18px;color:var(--text-dim)}
+.price-save{
+  color:var(--accent);
+  font-size:14px;
+  margin-bottom:32px;
+  font-family:var(--mono);
+}
+.price-features{
+  list-style:none;
+  margin-bottom:36px;
+}
+.price-features li{
+  padding:12px 0;
+  border-bottom:1px solid var(--line-soft);
+  color:var(--text-dim);
+  font-size:14px;
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+}
+.price-features li::before{
+  content:"✦";
+  color:var(--accent);
+  font-size:12px;
+  margin-top:2px;
+}
+.price-cta{
+  display:block;
+  text-align:center;
+  padding:18px;
+  background:var(--accent);
+  color:#000;
+  text-decoration:none;
+  font-weight:600;
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  border-radius:2px;
+  transition:background .2s;
+}
+.price-cta:hover{background:var(--accent-bright)}
+.price-card:not(.featured) .price-cta{
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--text);
+}
+.price-card:not(.featured) .price-cta:hover{border-color:var(--accent);color:var(--accent)}
+
+/* FAQ */
+.faq{background:var(--bg-elev);border-top:1px solid var(--line-soft)}
+.faq-list{max-width:880px;margin:0 auto;border-top:1px solid var(--line)}
+.faq-item{border-bottom:1px solid var(--line);padding:32px 0;cursor:pointer}
+.faq-q{
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--display);
+  font-size:22px;
+  font-weight:400;
+  letter-spacing:-0.01em;
+}
+.faq-toggle{color:var(--accent);font-size:20px;font-weight:300;transition:transform .3s}
+.faq-item.open .faq-toggle{transform:rotate(45deg)}
+.faq-a{
+  color:var(--text-dim);
+  font-size:15px;
+  line-height:1.7;
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .4s, padding-top .3s;
+}
+.faq-item.open .faq-a{max-height:300px;padding-top:20px}
+
+/* FINAL CTA */
+.final-cta{
+  padding:160px 0;
+  text-align:center;
+  border-top:1px solid var(--line-soft);
+  position:relative;
+  overflow:hidden;
+}
+.final-cta::before{
+  content:"";
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at center, rgba(201,166,92,.08) 0%, transparent 60%);
+  pointer-events:none;
+}
+.final-cta h2{margin-left:auto;margin-right:auto;margin-bottom:24px}
+.final-cta p{color:var(--text-dim);font-size:18px;margin-bottom:48px}
+
+/* DISCLAIMER + FOOTER */
+.disclaimer{
+  background:#050505;
+  border-top:1px solid var(--line-soft);
+  padding:60px 0;
+  font-size:13px;
+  color:var(--text-mute);
+  line-height:1.7;
+}
+.disclaimer strong{color:var(--text-dim);display:block;margin-bottom:12px;font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase}
+footer{
+  background:#050505;
+  padding:32px 0;
+  border-top:1px solid var(--line-soft);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:13px;
+  color:var(--text-mute);
+}
+footer .container{display:flex;align-items:center;justify-content:space-between;width:100%}
+.foot-links{display:flex;gap:24px}
+.foot-links a{color:var(--text-mute);text-decoration:none;transition:color .2s}
+.foot-links a:hover{color:var(--accent)}
+
+/* Mobile */
+@media (max-width: 880px){
+  nav{padding:16px 20px}
+  .nav-links{display:none}
+  .container{padding:0 20px}
+  .hero-meta{grid-template-columns:repeat(2,1fr)}
+  .story-grid{grid-template-columns:1fr;gap:32px}
+  .offering-grid{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+  .story-body{font-size:20px}
+  footer .container{flex-direction:column;gap:16px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">TBBB<span>.</span></div>
+  <div class="nav-links">
+    <a href="#story">The Story</a>
+    <a href="#room">The Room</a>
+    <a href="#pricing">Membership</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="#pricing" class="nav-cta">Join Live</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="container hero-inner">
+    <div class="eyebrow"><span class="live-dot"></span> Live trading room · Pre-market through close</div>
+    <h1>Watch the market move <em>in real time</em>—from the seat of an active trader.</h1>
+    <p class="hero-sub">TBBB Trading Group is a live broadcast of one trader's screen during market hours. Squeezes, momentum, news plays, shorts. You see the entries, the exits, and the thinking out loud as it happens.</p>
+    <div class="hero-ctas">
+      <a href="#pricing" class="btn-primary">Enter the Room →</a>
+      <a href="#story" class="btn-secondary">How it Works</a>
+    </div>
+
+    <div class="hero-meta">
+      <div class="meta-cell">
+        <div class="meta-label">Style</div>
+        <div class="meta-value">Momentum</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-label">Market</div>
+        <div class="meta-value">US Equities</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-label">Format</div>
+        <div class="meta-value">Live Stream</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-label">Hours</div>
+        <div class="meta-value">7:00–4:00 ET</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-strip">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="sym">SHORT SQUEEZE</span> <span class="up">Real-time setups</span></span>
+    <span class="ticker-item"><span class="sym">MOMENTUM</span> <span class="up">Live entries</span></span>
+    <span class="ticker-item"><span class="sym">NEWS PLAYS</span> <span class="up">As it breaks</span></span>
+    <span class="ticker-item"><span class="sym">SHORTS</span> <span class="down">When the chart says so</span></span>
+    <span class="ticker-item"><span class="sym">SCREEN SHARE</span> <span class="up">Nothing hidden</span></span>
+    <span class="ticker-item"><span class="sym">VOICE-OVER</span> <span class="up">The thinking out loud</span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item"><span class="sym">SHORT SQUEEZE</span> <span class="up">Real-time setups</span></span>
+    <span class="ticker-item"><span class="sym">MOMENTUM</span> <span class="up">Live entries</span></span>
+    <span class="ticker-item"><span class="sym">NEWS PLAYS</span> <span class="up">As it breaks</span></span>
+    <span class="ticker-item"><span class="sym">SHORTS</span> <span class="down">When the chart says so</span></span>
+    <span class="ticker-item"><span class="sym">SCREEN SHARE</span> <span class="up">Nothing hidden</span></span>
+    <span class="ticker-item"><span class="sym">VOICE-OVER</span> <span class="up">The thinking out loud</span></span>
+  </div>
+</div>
+
+<!-- STORY -->
+<section class="story" id="story">
+  <div class="container">
+    <div class="section-label">— The Origin</div>
+    <div class="story-grid">
+      <div class="story-marker">
+        <span class="num">17.</span>
+        Where it began
+      </div>
+      <div class="story-body">
+        <p>It started with a few hundred dollars and the kind of hunger you don't learn—you bring it.</p>
+        <div class="pullquote">"A young wolf, hungry for the market."</div>
+        <p>Years later, the screens are bigger and the size has changed, but the obsession is the same. The squeezes. The catalysts. The moment a chart finally breaks. TBBB exists because the most useful thing in trading isn't a signal — it's watching someone do it live and hearing why.</p>
+        <p>This room isn't a course, a guru promise, or a get-rich pitch. It's a screen and a microphone during market hours. You watch. You learn. You decide what to do with it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFERING -->
+<section class="offering" id="room">
+  <div class="container">
+    <div class="section-label">— Inside the Room</div>
+    <h2>Three things, executed <em>uncompromisingly</em>.</h2>
+    <p class="section-sub">No fluff modules. No recycled PDFs. Just the live work of a full-time trader, delivered the way you'd want to watch it.</p>
+
+    <div class="offering-grid">
+      <div class="offering-card">
+        <div class="offering-num">01 / Live</div>
+        <div class="offering-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12c0-5 4-9 9-9s9 4 9 9-4 9-9 9-9-4-9-9z"/><path d="M9 9l6 3-6 3V9z" fill="currentColor"/></svg>
+        </div>
+        <div class="offering-title">Live Trading Stream</div>
+        <p class="offering-desc">My charts, my Level 2, my voice-over. Every market day, 7 AM to close. The pre-market is where the plays set up — you're in the seat before the bell, watching the catalysts develop in real time.</p>
+      </div>
+      <div class="offering-card">
+        <div class="offering-num">02 / Process</div>
+        <div class="offering-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+        </div>
+        <div class="offering-title">The Thinking Out Loud</div>
+        <p class="offering-desc">The trade itself is the smallest part. You hear the read on the tape, the catalyst, the risk, the why. The reasoning is the lesson — the trade is just the example.</p>
+      </div>
+      <div class="offering-card">
+        <div class="offering-num">03 / Community</div>
+        <div class="offering-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M14 19c0-2 1.5-3.5 3-3.5s3 1.5 3 3.5"/></svg>
+        </div>
+        <div class="offering-title">Members-Only Discord</div>
+        <p class="offering-desc">A serious room for serious people. Watchlists, recap notes, after-hours conversation. No noise, no copy-trade culture — just traders who care about getting better.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TESTIMONIALS SECTION — HIDDEN UNTIL REAL TESTIMONIALS EXIST
+     To enable: remove the surrounding <!-- and --> tags below.
+     Replace the [REPLACE] placeholders with real member quotes,
+     names (or initials), and member-since dates. Never publish
+     fake testimonials — FTC violation.
+     ============================================================ -->
+<!--
+<section class="testimonials" id="testimonials">
+  <div class="container">
+    <div class="section-label">— Members</div>
+    <h2>From inside the <em>room</em>.</h2>
+    <p class="section-sub">Real words from members. Their experience does not guarantee yours — trading involves substantial risk of loss.</p>
+
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-quote">"[REPLACE WITH REAL MEMBER QUOTE]"</div>
+        <div class="testimonial-meta">
+          <div class="testimonial-name">[REPLACE — Member Name or Initials]</div>
+          <div class="testimonial-since">Member since [REPLACE — Month Year]</div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">"[REPLACE WITH REAL MEMBER QUOTE]"</div>
+        <div class="testimonial-meta">
+          <div class="testimonial-name">[REPLACE — Member Name or Initials]</div>
+          <div class="testimonial-since">Member since [REPLACE — Month Year]</div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">"[REPLACE WITH REAL MEMBER QUOTE]"</div>
+        <div class="testimonial-meta">
+          <div class="testimonial-name">[REPLACE — Member Name or Initials]</div>
+          <div class="testimonial-since">Member since [REPLACE — Month Year]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+-->
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="pricing-header">
+      <div class="section-label">— Membership</div>
+      <h2>Two ways <em>in</em>.</h2>
+      <p class="section-sub">A serious membership for traders who'd rather watch one professional work than chase ten signal services.</p>
+    </div>
+    <div class="pricing-grid">
+
+      <div class="price-card">
+        <div class="price-name">Monthly</div>
+        <div class="price-amount"><sup>$</sup>149<span>/month</span></div>
+        <div class="price-save">Cancel anytime</div>
+        <ul class="price-features">
+          <li>Daily live trading stream, market open to close</li>
+          <li>Members-only Discord access</li>
+          <li>Watchlist and pre-market notes</li>
+          <li>Recap recordings posted same day</li>
+        </ul>
+        <a href="#" class="price-cta">Start Monthly</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-badge">★ Best Value</div>
+        <div class="price-name">Annual</div>
+        <div class="price-amount"><sup>$</sup>1,199<span>/year</span></div>
+        <div class="price-save">Save $589 — works out to $99/mo</div>
+        <ul class="price-features">
+          <li>Everything in Monthly</li>
+          <li>Locked-in price for 12 months</li>
+          <li>Priority Discord channel access</li>
+          <li>Early access to new content & features</li>
+          <li>Direct line for community Q&A sessions</li>
+        </ul>
+        <a href="#" class="price-cta">Go Annual → Save $589</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="section-label">— Questions</div>
+    <h2>The honest <em>answers</em>.</h2>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <div class="faq-q"><span>Is this financial advice?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">No. TBBB Trading Group is a live broadcast for educational and entertainment purposes only. Nothing in the room is a recommendation to buy, sell, or hold any security. You are responsible for your own trading decisions.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q"><span>Will you tell me what to buy?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">No. The room is built around watching one trader work — not telling you what to do. You see what's traded and hear the reasoning. What you do in your own account is entirely up to you.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q"><span>What do you trade?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">US equities — primarily short-squeeze setups, momentum names, news catalysts, and short setups when the tape calls for it. Day-trading focused, with occasional swing positions noted.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q"><span>Do I need a big account to get value?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">No. The lessons are in the read and the reasoning, not the position size. Members watch and learn at every account level — the value is in seeing how a full-time trader frames decisions in real time.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q"><span>What if I want to cancel?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">Monthly memberships cancel anytime, no questions asked. Annual memberships are non-refundable but lock in your rate for 12 months.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q"><span>Are returns or P&L verified?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">TBBB does not publish performance figures and makes no representation that following any activity in the room will be profitable. Trading carries substantial risk of loss. Past activity does not guarantee future results.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="container" style="position:relative;z-index:2">
+    <div class="section-label">— The Bell</div>
+    <h2>Pre-market starts at <em>7:00</em>.</h2>
+    <p>Pull up a seat. The screens are already on.</p>
+    <a href="#pricing" class="btn-primary">Join the Live Room →</a>
+  </div>
+</section>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  <div class="container">
+    <strong>Important Disclosures</strong>
+    TBBB Trading Group provides educational and entertainment content only. Nothing on this site or within the live trading room constitutes investment advice, a recommendation, or an offer or solicitation to buy or sell any security. TBBB Trading Group is not a registered investment adviser, broker-dealer, or financial planner. Trading securities involves substantial risk of loss and is not suitable for every investor. Past performance is not indicative of future results. You should consult a licensed financial professional before making any investment decision. By accessing the live room, you acknowledge full responsibility for your own trading decisions and outcomes.
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="logo">TBBB<span>.</span></div>
+    <div class="foot-links">
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+      <a href="#">Risk Disclosure</a>
+      <a href="#">Contact</a>
+    </div>
+    <div>© 2026 TBBB Trading Group, LLC</div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  });
+</script>
+
+</body>
+</html>
