@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TBBB Trading Group — A live trading room.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=GFS+Didot&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#fafaf7;
+  --paper-soft:#f3f2ec;
+  --ink:#0a0a0a;
+  --ink-soft:#1f1f1f;
+  --ink-mute:#5a5a52;
+  --ink-faint:#8b8b80;
+  --rule:#1a1a1a;
+  --rule-soft:#d8d6cc;
+  --accent:#a02b1c;
+  --accent-soft:#c2402f;
+  --display:'GFS Didot', 'Times New Roman', serif;
+  --serif:'Instrument Serif', 'Times New Roman', serif;
+  --sans:'IBM Plex Sans', system-ui, sans-serif;
+  --mono:'IBM Plex Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-weight:400;
+  line-height:1.5;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+.container{max-width:1320px;margin:0 auto;padding:0 40px;position:relative}
+@media (max-width:880px){.container{padding:0 22px}}
+
+.masthead{border-bottom:1px solid var(--rule);background:var(--paper);position:sticky;top:0;z-index:50}
+.masthead-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:32px}
+.dateline{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;color:var(--ink-mute);text-transform:uppercase;flex:1}
+.brand{font-family:var(--display);font-size:28px;font-weight:400;letter-spacing:0.01em;text-decoration:none;color:var(--ink);flex:1;text-align:center}
+.brand i{font-style:italic;color:var(--accent)}
+.nav{display:flex;gap:28px;flex:1;justify-content:flex-end;align-items:center}
+.nav a{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--ink);text-decoration:none;letter-spacing:0.02em;transition:color .2s}
+.nav a:hover{color:var(--accent)}
+.nav-cta{background:var(--ink);color:var(--paper) !important;padding:9px 18px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;transition:background .2s}
+.nav-cta:hover{background:var(--accent);color:var(--paper) !important}
+@media (max-width:880px){
+  .masthead-inner{flex-direction:column;gap:8px;padding:12px 0}
+  .dateline,.nav{flex:none;width:100%;justify-content:center;text-align:center}
+  .dateline{order:1}
+  .brand{order:2;font-size:32px}
+  .nav{order:3;gap:14px;flex-wrap:wrap}
+  .nav a:not(.nav-cta){display:none}
+}
+
+.hero{padding:60px 0 80px;border-bottom:1px solid var(--rule);position:relative}
+.hero-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;font-family:var(--mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-mute);flex-wrap:wrap;gap:14px}
+.hero-meta-left{display:flex;align-items:center;gap:14px}
+.hero-meta-right{font-style:italic;font-family:var(--serif);text-transform:none;font-size:14px;letter-spacing:0;color:var(--ink-soft)}
+.live-tag{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:5px 12px;font-weight:600}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#ff3b2f;box-shadow:0 0 0 0 rgba(255,59,47,0.6);animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,59,47,0.6)}70%{box-shadow:0 0 0 6px rgba(255,59,47,0)}100%{box-shadow:0 0 0 0 rgba(255,59,47,0)}}
+.hero-grid{display:grid;grid-template-columns:1fr 380px;gap:80px;align-items:end}
+@media (max-width:980px){.hero-grid{grid-template-columns:1fr;gap:48px}}
+.hero-headline{font-family:var(--display);font-weight:400;font-size:clamp(56px, 9vw, 132px);line-height:0.92;letter-spacing:-0.02em;color:var(--ink);margin-bottom:24px}
+.hero-headline .ital{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-0.01em}
+.hero-headline .accent{color:var(--accent)}
+.hero-deck{font-family:var(--serif);font-size:clamp(20px, 2.4vw, 26px);line-height:1.4;font-style:italic;color:var(--ink-soft);max-width:680px;margin-top:36px;border-left:2px solid var(--accent);padding-left:20px}
+.hero-card{border:1px solid var(--rule);background:var(--paper-soft);padding:0}
+.hero-card-row{display:grid;grid-template-columns:90px 1fr;border-bottom:1px solid var(--rule-soft);padding:14px 18px;align-items:baseline}
+.hero-card-row:last-child{border-bottom:none}
+.hero-card-label{font-family:var(--mono);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-mute)}
+.hero-card-value{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink)}
+
+.ticker{border-bottom:1px solid var(--rule);padding:14px 0;overflow:hidden;white-space:nowrap;background:var(--ink);color:var(--paper)}
+.ticker-track{display:inline-block;animation:scroll 50s linear infinite;font-family:var(--mono);font-size:13px}
+.ticker-item{display:inline-flex;gap:10px;margin-right:48px;align-items:baseline}
+.ticker-sym{font-weight:600;letter-spacing:0.05em}
+.ticker-note{color:#a8a8a0;font-style:italic;font-family:var(--serif);font-size:14px}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+section{padding:120px 0;border-bottom:1px solid var(--rule)}
+@media (max-width:880px){section{padding:72px 0}}
+.section-tag{font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.section-tag::before{content:"";display:inline-block;width:32px;height:1px;background:var(--accent)}
+.section-headline{font-family:var(--display);font-weight:400;font-size:clamp(38px, 5.5vw, 72px);line-height:1.02;letter-spacing:-0.02em;margin-bottom:32px;max-width:920px}
+.section-headline .ital{font-family:var(--serif);font-style:italic}
+.section-deck{font-family:var(--serif);font-size:20px;font-style:italic;color:var(--ink-mute);max-width:640px;line-height:1.45;margin-bottom:64px}
+
+.about-grid{display:grid;grid-template-columns:200px 1fr;gap:72px}
+@media (max-width:880px){.about-grid{grid-template-columns:1fr;gap:32px}}
+.about-marker{font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);border-top:1px solid var(--ink);padding-top:14px}
+.about-marker .num{display:block;font-family:var(--display);font-size:120px;font-weight:400;color:var(--accent);font-style:normal;line-height:0.9;margin-top:12px;letter-spacing:-0.04em}
+@media (max-width:880px){.about-marker .num{font-size:80px}}
+.about-body{font-family:var(--serif);font-size:24px;line-height:1.5;color:var(--ink);letter-spacing:-0.005em;max-width:720px}
+.about-body p{margin-bottom:28px}
+.about-body p:first-child::first-letter{font-family:var(--display);font-size:84px;font-weight:400;float:left;line-height:0.85;margin:6px 12px 0 0;color:var(--accent)}
+.about-body em{font-family:var(--serif);font-style:italic}
+.about-body .small{font-family:var(--sans);font-size:15px;color:var(--ink-mute);font-style:normal;line-height:1.6}
+.about-stamp{margin-top:40px;display:flex;align-items:center;gap:18px;padding-top:24px;border-top:1px solid var(--rule-soft);max-width:720px}
+.about-stamp-sig{font-family:var(--display);font-size:32px;font-style:italic;color:var(--accent)}
+.about-stamp-meta{font-family:var(--mono);font-size:11px;letter-spacing:0.15em;color:var(--ink-mute);text-transform:uppercase}
+
+.offering{background:var(--paper-soft)}
+.offering-grid{display:grid;grid-template-columns:repeat(3, 1fr);border:1px solid var(--rule);background:var(--paper)}
+.offering-cell{padding:48px 36px;border-right:1px solid var(--rule-soft);position:relative}
+.offering-cell:last-child{border-right:none}
+@media (max-width:880px){.offering-grid{grid-template-columns:1fr}.offering-cell{border-right:none;border-bottom:1px solid var(--rule-soft)}.offering-cell:last-child{border-bottom:none}}
+.offering-num{font-family:var(--mono);font-size:11px;letter-spacing:0.2em;color:var(--accent);margin-bottom:48px}
+.offering-title{font-family:var(--display);font-weight:400;font-size:32px;line-height:1.05;letter-spacing:-0.01em;margin-bottom:20px}
+.offering-title .ital{font-family:var(--serif);font-style:italic}
+.offering-body{font-family:var(--sans);font-size:15px;line-height:1.65;color:var(--ink-mute)}
+
+.pricing-headline-wrap{text-align:center;max-width:780px;margin:0 auto 64px}
+.pricing-headline-wrap .section-tag{justify-content:center}
+.pricing-headline-wrap .section-tag::before{display:none}
+.pricing-headline-wrap .section-headline{margin:0 auto 24px}
+.pricing-headline-wrap .section-deck{margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);max-width:980px;margin:0 auto}
+@media (max-width:880px){.pricing-grid{grid-template-columns:1fr}}
+.price-cell{padding:48px 44px;border-right:1px solid var(--rule);background:var(--paper);position:relative}
+.price-cell:last-child{border-right:none}
+@media (max-width:880px){.price-cell{border-right:none;border-bottom:1px solid var(--rule)}.price-cell:last-child{border-bottom:none}}
+.price-cell.featured{background:var(--paper-soft);position:relative}
+.price-flag{position:absolute;top:0;left:44px;background:var(--accent);color:var(--paper);font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:0.18em;padding:7px 14px;text-transform:uppercase}
+.price-name{font-family:var(--mono);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:24px;margin-top:14px}
+.price-was{font-family:var(--mono);font-size:13px;color:var(--ink-faint);text-decoration:line-through;margin-bottom:6px}
+.price-amount{font-family:var(--display);font-size:84px;line-height:1;letter-spacing:-0.04em;margin-bottom:8px;color:var(--ink)}
+.price-amount sup{font-size:32px;color:var(--ink-mute);vertical-align:top;margin-right:4px}
+.price-amount span{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--ink-mute)}
+.price-save{font-family:var(--serif);font-style:italic;font-size:16px;color:var(--accent);margin-bottom:32px}
+.price-features{list-style:none;margin-bottom:36px;padding:0}
+.price-features li{padding:14px 0;border-bottom:1px solid var(--rule-soft);color:var(--ink-soft);font-size:14.5px;display:flex;gap:14px;line-height:1.55}
+.price-features li:last-child{border-bottom:none}
+.price-features li::before{content:"→";color:var(--accent);font-family:var(--mono);flex-shrink:0}
+.price-cta{display:block;text-align:center;padding:18px;background:var(--ink);color:var(--paper);text-decoration:none;font-family:var(--sans);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:0.1em;transition:background .2s}
+.price-cta:hover{background:var(--accent)}
+.price-cell:not(.featured) .price-cta{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.price-cell:not(.featured) .price-cta:hover{background:var(--ink);color:var(--paper)}
+
+.faq-list{max-width:880px;margin:0 auto;border-top:1px solid var(--rule)}
+.faq-item{border-bottom:1px solid var(--rule);cursor:pointer}
+.faq-q{display:flex;align-items:flex-start;justify-content:space-between;font-family:var(--display);font-size:24px;font-weight:400;letter-spacing:-0.01em;padding:28px 0;gap:24px}
+.faq-toggle{font-family:var(--mono);color:var(--accent);font-size:18px;flex-shrink:0;transition:transform .3s;margin-top:6px}
+.faq-item.open .faq-toggle{transform:rotate(45deg)}
+.faq-a{font-family:var(--serif);color:var(--ink-soft);font-size:18px;line-height:1.55;max-height:0;overflow:hidden;transition:max-height .4s, padding .3s}
+.faq-item.open .faq-a{max-height:400px;padding:0 0 32px 0}
+
+.bell{text-align:center;padding:140px 0;background:var(--ink);color:var(--paper);border-bottom:none}
+.bell .section-tag{color:var(--accent-soft);justify-content:center}
+.bell .section-tag::before{display:none}
+.bell-headline{font-family:var(--display);font-weight:400;font-size:clamp(48px, 8vw, 96px);line-height:0.95;letter-spacing:-0.02em;margin-bottom:28px;color:var(--paper)}
+.bell-headline .ital{font-family:var(--serif);font-style:italic;color:var(--accent-soft)}
+.bell-deck{font-family:var(--serif);font-style:italic;font-size:22px;color:#bdbdb4;margin-bottom:48px}
+.bell-cta{display:inline-block;background:var(--paper);color:var(--ink);padding:20px 40px;font-family:var(--sans);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:0.12em;text-decoration:none;transition:background .2s}
+.bell-cta:hover{background:var(--accent);color:var(--paper)}
+
+.disclaimer{background:var(--paper-soft);padding:56px 0;border-bottom:1px solid var(--rule)}
+.disclaimer-inner{max-width:920px;margin:0 auto;font-family:var(--serif);font-size:14px;line-height:1.65;color:var(--ink-mute)}
+.disclaimer-label{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink);margin-bottom:14px;display:block}
+
+footer{background:var(--paper);padding:36px 0}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:var(--ink-mute);text-transform:uppercase}
+.footer-brand{font-family:var(--display);font-size:20px;letter-spacing:0;color:var(--ink);text-transform:none;font-weight:400}
+.footer-brand i{font-style:italic;color:var(--accent)}
+.foot-links{display:flex;gap:24px}
+.foot-links a{color:var(--ink-mute);text-decoration:none;transition:color .2s}
+.foot-links a:hover{color:var(--accent)}
+@media (max-width:880px){.footer-inner{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="container">
+    <div class="masthead-inner">
+      <div class="dateline">Vol. 1 · Pre-market through close</div>
+      <a href="#" class="brand">TBBB <i>Trading Group</i></a>
+      <nav class="nav">
+        <a href="#about">The Trader</a>
+        <a href="#room">The Room</a>
+        <a href="#pricing">Membership</a>
+        <a href="#pricing" class="nav-cta">Join Live</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-meta">
+      <div class="hero-meta-left">
+        <span class="live-tag"><span class="live-dot"></span> LIVE</span>
+        <span>Mon–Fri · 7:00 AM – 4:00 PM ET</span>
+      </div>
+      <div class="hero-meta-right">A live trading broadcast.</div>
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <h1 class="hero-headline">
+          Watch<br>
+          the market<br>
+          <span class="ital">in real time<span class="accent">.</span></span>
+        </h1>
+        <p class="hero-deck">A live broadcast of one trader's screen during market hours. Squeezes, momentum, news plays, shorts. The entries, the exits, and the thinking out loud — as it happens.</p>
+      </div>
+
+      <aside class="hero-card">
+        <div class="hero-card-row"><div class="hero-card-label">Style</div><div class="hero-card-value">Momentum</div></div>
+        <div class="hero-card-row"><div class="hero-card-label">Market</div><div class="hero-card-value">US Equities</div></div>
+        <div class="hero-card-row"><div class="hero-card-label">Format</div><div class="hero-card-value">Live Stream</div></div>
+        <div class="hero-card-row"><div class="hero-card-label">Hours</div><div class="hero-card-value">7:00–4:00 ET</div></div>
+        <div class="hero-card-row"><div class="hero-card-label">Founded</div><div class="hero-card-value">By a young wolf</div></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="ticker-sym">SHORT SQUEEZE</span><span class="ticker-note">— real-time setups</span></span>
+    <span class="ticker-item"><span class="ticker-sym">MOMENTUM</span><span class="ticker-note">— live entries</span></span>
+    <span class="ticker-item"><span class="ticker-sym">NEWS PLAYS</span><span class="ticker-note">— as they break</span></span>
+    <span class="ticker-item"><span class="ticker-sym">SHORTS</span><span class="ticker-note">— when the chart says so</span></span>
+    <span class="ticker-item"><span class="ticker-sym">SCREEN SHARE</span><span class="ticker-note">— nothing hidden</span></span>
+    <span class="ticker-item"><span class="ticker-sym">VOICE-OVER</span><span class="ticker-note">— the thinking out loud</span></span>
+    <span class="ticker-item"><span class="ticker-sym">SHORT SQUEEZE</span><span class="ticker-note">— real-time setups</span></span>
+    <span class="ticker-item"><span class="ticker-sym">MOMENTUM</span><span class="ticker-note">— live entries</span></span>
+    <span class="ticker-item"><span class="ticker-sym">NEWS PLAYS</span><span class="ticker-note">— as they break</span></span>
+    <span class="ticker-item"><span class="ticker-sym">SHORTS</span><span class="ticker-note">— when the chart says so</span></span>
+    <span class="ticker-item"><span class="ticker-sym">SCREEN SHARE</span><span class="ticker-note">— nothing hidden</span></span>
+    <span class="ticker-item"><span class="ticker-sym">VOICE-OVER</span><span class="ticker-note">— the thinking out loud</span></span>
+  </div>
+</div>
+
+<section id="about">
+  <div class="container">
+    <div class="section-tag">The Trader</div>
+    <h2 class="section-headline">A few hundred dollars, <span class="ital">and a hunger for the chart.</span></h2>
+
+    <div class="about-grid">
+      <div class="about-marker">
+        Where it began
+        <span class="num">17.</span>
+      </div>
+
+      <div class="about-body">
+        <p>It started at seventeen with a few hundred dollars and the kind of obsession you don't learn — you bring it. A few thousand charts later, the screens are bigger and the size has changed, but the obsession is the same. The squeezes. The catalysts. The moment a tape finally tips.</p>
+
+        <p>TBBB exists because the most useful thing in trading isn't a signal — it's <em>watching someone do it live and hearing why</em>.</p>
+
+        <p>This room isn't a course, a guru promise, or a get-rich pitch. It's a screen and a microphone during market hours. You watch. You learn. You decide what to do with it.</p>
+
+        <p class="small">No track record is shown publicly, no income claims are made, and nothing said in the room is a recommendation. The value is in the read and the reasoning — and the discipline of seeing one trader work the same setups, day after day, in real time.</p>
+
+        <div class="about-stamp">
+          <div class="about-stamp-sig">— TBBB</div>
+          <div class="about-stamp-meta">Founder · Active trader</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="room" class="offering">
+  <div class="container">
+    <div class="section-tag">The Room</div>
+    <h2 class="section-headline">Three things, <span class="ital">done well.</span></h2>
+    <p class="section-deck">No fluff modules. No recycled PDFs. The live work of a full-time trader, delivered the way you'd want to watch it.</p>
+
+    <div class="offering-grid">
+      <div class="offering-cell">
+        <div class="offering-num">№ 01 — LIVE</div>
+        <h3 class="offering-title">A live <span class="ital">trading stream.</span></h3>
+        <p class="offering-body">Charts, Level 2, and a microphone. Every market day, 7 AM to close. The pre-market is where the plays set up — you're in the seat before the bell, watching the catalysts develop in real time.</p>
+      </div>
+      <div class="offering-cell">
+        <div class="offering-num">№ 02 — PROCESS</div>
+        <h3 class="offering-title">The <span class="ital">thinking</span> out loud.</h3>
+        <p class="offering-body">The trade itself is the smallest part. You hear the read on the tape, the catalyst, the risk, the why. The reasoning is the lesson. The trade is the example.</p>
+      </div>
+      <div class="offering-cell">
+        <div class="offering-num">№ 03 — COMMUNITY</div>
+        <h3 class="offering-title">A members-only <span class="ital">room.</span></h3>
+        <p class="offering-body">A serious Discord for serious people. Watchlists, recap notes, after-hours discussion. No noise, no copy-trade culture — traders who care about getting better.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="container">
+    <div class="pricing-headline-wrap">
+      <div class="section-tag">Founding Member Access</div>
+      <h2 class="section-headline">The first <span class="ital">25 in</span> pay founding rates.</h2>
+      <p class="section-deck">Locked in for life. Once founding spots are filled, the price moves to standard. No exceptions.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="price-cell">
+        <div class="price-name">Founding · Monthly</div>
+        <div class="price-was">$149/mo</div>
+        <div class="price-amount"><sup>$</sup>89<span> / month</span></div>
+        <div class="price-save">Founding rate · cancel anytime</div>
+        <ul class="price-features">
+          <li>Daily live stream — pre-market through close</li>
+          <li>Members-only Discord access</li>
+          <li>Watchlist and pre-market notes</li>
+          <li>Recap recordings posted same day</li>
+          <li>Founding rate locked for as long as you remain a member</li>
+        </ul>
+        <a href="https://buy.stripe.com/3cIeVd71a26wfHM9pEcs802" class="price-cta">Claim Founding Monthly →</a>
+      </div>
+
+      <div class="price-cell featured">
+        <div class="price-flag">★ Best Value</div>
+        <div class="price-name">Founding · Annual</div>
+        <div class="price-was">$1,199/yr</div>
+        <div class="price-amount"><sup>$</sup>699<span> / year</span></div>
+        <div class="price-save">Save $500 — works out to $58 / month</div>
+        <ul class="price-features">
+          <li>Everything in Monthly</li>
+          <li>Locked-in founding rate for 12 months</li>
+          <li>Priority Discord channel access</li>
+          <li>Early access to new content & features</li>
+          <li>Direct line for community Q&A sessions</li>
+        </ul>
+        <a href="https://buy.stripe.com/28E6oHclucLa9jo31gcs801" class="price-cta">Claim Founding Annual → Save $500</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container">
+    <div class="section-tag">Questions</div>
+    <h2 class="section-headline">The honest <span class="ital">answers.</span></h2>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q"><span>Is this financial advice?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">No. TBBB Trading Group is a live broadcast for educational and entertainment purposes only. Nothing in the room is a recommendation to buy, sell, or hold any security. You are responsible for your own trading decisions.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Will you tell me what to buy?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">No. The room is built around watching one trader work — not telling you what to do. You see what's traded and hear the reasoning. What you do in your own account is entirely up to you.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>What's traded?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">US equities — primarily short-squeeze setups, momentum names, news catalysts, and short setups when the tape calls for it. Day-trading focused, with occasional swing positions noted.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Do I need a big account to get value?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">No. The lessons are in the read and the reasoning, not the position size. Members watch and learn at every account level — the value is in seeing how a full-time trader frames decisions in real time.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>What if I want to cancel?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">Monthly memberships cancel anytime, no questions asked. Annual memberships are non-refundable but lock in your rate for 12 months.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Are returns or P&L verified?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-a">TBBB does not publish performance figures and makes no representation that following any activity in the room will be profitable. Trading carries substantial risk of loss. Past activity does not guarantee future results.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bell">
+  <div class="container">
+    <div class="section-tag">The Bell</div>
+    <h1 class="bell-headline">Pre-market <span class="ital">starts at 7:00.</span></h1>
+    <p class="bell-deck">Pull up a seat. The screens are already on.</p>
+    <a href="#pricing" class="bell-cta">Join the Live Room →</a>
+  </div>
+</section>
+
+<div class="disclaimer">
+  <div class="container">
+    <div class="disclaimer-inner">
+      <span class="disclaimer-label">Important Disclosures</span>
+      TBBB Trading Group provides educational and entertainment content only. Nothing on this site or within the live trading room constitutes investment advice, a recommendation, or an offer or solicitation to buy or sell any security. TBBB Trading Group is not a registered investment adviser, broker-dealer, or financial planner. Trading securities involves substantial risk of loss and is not suitable for every investor. Past performance is not indicative of future results. You should consult a licensed financial professional before making any investment decision. By accessing the live room, you acknowledge full responsibility for your own trading decisions and outcomes.
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">TBBB <i>Trading Group</i></div>
+      <div class="foot-links">
+        <a href="#about">About</a>
+        <a href="#room">The Room</a>
+        <a href="#pricing">Membership</a>
+        <a href="mailto:Tbbbtrading@hotmail.com">Contact</a>
+      </div>
+      <div>© 2026 TBBB Trading Group, LLC</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  });
+</script>
+
+</body>
+</html>
